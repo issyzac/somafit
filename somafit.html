@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SomaFiti</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#231f21">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#231f21">
+    <meta name="theme-color" content="#231f21">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#231f21">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="iPF Softwares">
+    <link rel="icon" href="img/somafit/fav.png">
+
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/flex.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <link rel="stylesheet" type="text/css" href="css/fullpage.css" />
+    <link rel="stylesheet" href="css/somafit.css">
+
+    <script src="js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="js/fullpage.min.js"></script>
+
+    <script>
+        const WORKOUT_SECTION_INDEX = 1;
+        const SWIM_SECTION_INDEX = 3;
+        const PHONE_SECTION_INDEX = 3;
+        let workoutImage;
+        const watchImageSrcs = ['watch-dark-blue.png', 'watch-black.png', 'watch-purple.png'];
+        const bwWatchImageSrcs = ['watch-blue-bw.png', 'watch-black-bw.png', 'watch-red-bw.png'];
+        const watchNames = ['Barely Blue', 'Boldly Black', 'Pretty Purple'];
+        const bwWatchNames = ['Brilliant Blue', 'Boldly Black', 'Rad Red'];
+
+        let maxTextIndex, sectionScroller, sections, navigation,
+            circlesSection, rightCircle, leftCircle,
+            rightImages, leftImages, diverVideo, diverActualVideo,
+            outFitImages, cylinderImages, orderItems, currentColorIdx = 0, currentOrderItem, orderForm;
+
+        function moveOutFitImages(el, index) {
+            cylinderImages.removeClass('visible');
+            const translation = 'translateX(' + (-index * 100) + '%)';
+            var slides = document.querySelector('#outFitImages');
+            slides.style.transform = translation;
+
+            $(el).closest('div').find('.active').removeClass('active');
+            $(el).addClass('active');
+        }
+        
+        function showColorsOptions() {
+            cylinderImages.addClass('visible');
+        }
+        
+        function changeCurrentOrderWatch(index) {
+            currentColorIdx = index;
+            orderItems.addClass('hidden')
+            currentOrderItem = orderItems.eq(index);
+            currentOrderItem.removeClass('hidden');
+
+            if(currentColorIdx !== 0){
+                orderForm.removeClass('for-bw');
+            }
+            else{
+                orderForm.addClass('for-bw');
+            }
+
+            changeCurrentOrderColor(0);
+            $('#colorOptions').find('label').eq(index).trigger('click');
+        }
+        
+        function changeCurrentOrderColor(index) {
+            var src = currentColorIdx == 0 ? bwWatchImageSrcs[index] : watchImageSrcs[index];
+            var name = currentColorIdx == 0 ? bwWatchNames[index] : watchNames[index];
+            currentOrderItem.find('img').get(0).src = "img/somafit/" + src;
+            currentOrderItem.find('span').text(name);
+        }
+        
+        function showOrderForm(index) {
+            changeCurrentOrderWatch(index);
+            orderForm.addClass('visible');
+        }
+
+        $(document).ready(function() {
+            sectionScroller = $("#sectionScroller");
+            sections = $('#fullpage section');
+            maxTextIndex = sections.length - 1;
+            circlesSection = $("#circlesSection");
+            rightCircle = $("#rightCircle");
+            leftCircle = $("#leftCircle");
+            // rightImages = rightCircle.find('img, div');
+            rightImages = $('#rightCircle > img, #rightCircle > div');
+            leftImages = $('#leftCircle > img, #leftCircle > div');
+            diverVideo = $('#diverVideo');
+            diverActualVideo = diverVideo.get(0);
+            outFitImages = $('#outFitImages');
+            cylinderImages = $('#cylinderImages');
+            orderItems = $('.order-item');
+            orderForm = $('#orderForm form');
+            currentOrderItem = orderItems.eq(0);
+
+            $("#diverPlayLink").click(function() {
+                if (!diverVideo.hasClass('visible')) {
+                    diverVideo.addClass('visible');
+                    diverActualVideo.play();
+                }
+            });          
+            
+            $("#sectionScroller, #getYourWatchAnchor").click(function(){
+                navigation.find('.active')
+                    .parent().next().find('a').trigger('click');
+            });
+            
+            $('#fullpage').fullpage({'verticalCentered': false,'css3': true,'navigation': true,'navigationPosition': 'right','easingcss3': 'ease-out',
+                'scrollingSpeed': 700,
+                onLeave: function(index, newIndex, direction) {
+                    const thisSection = sections.eq(index - 1);
+                    const nextSection = sections.eq(newIndex - 1);
+
+                    cylinderImages.removeClass('visible');
+
+                    if (index === 3 && diverVideo.hasClass('visible')) {
+                        diverActualVideo.pause();
+                        diverActualVideo.currentTime = 0;
+                        diverVideo.removeClass('visible');
+                    }
+
+                    if (newIndex === 1){
+                        rightImages.eq(1).removeClass('visible');
+                    }
+
+                    if (newIndex === 2)
+                        leftImages.eq(1).removeClass('visible');
+                    
+                    if (newIndex === 3){
+                        if(index === 4){
+                            rightCircle.addClass('dunk');
+
+                            setTimeout(() => {
+                                rightImages.eq(2).removeClass('visible');
+                                rightImages.eq(1).addClass('visible');
+                            }, 300);
+
+                            setTimeout(() => {
+                                rightCircle.removeClass('dunk');
+                            }, 700);
+                        }
+                        else{
+                            rightImages.eq(1).addClass('visible');
+                        }
+                    }else if(index !== 3){
+                        rightImages.eq(1).removeClass('visible');
+                    }
+                    
+                    if (newIndex === 4){
+                        rightImages.eq(3).removeClass('visible');
+                        if(index === 3){
+                            rightCircle.addClass('dunk');
+
+                            setTimeout(() => {
+                                rightImages.eq(2).addClass('visible');
+                            }, 300);
+                            
+                            setTimeout(() => {
+                                rightCircle.removeClass('dunk');
+                            }, 700);
+                        }else{
+                            // rightImages.eq(1).addClass('visible');
+                            rightImages.eq(2).addClass('visible');
+                        }
+                    }
+
+                    if (newIndex === 5){
+                        leftImages.eq(1).addClass('visible');
+                        // leftImages.eq(2).removeClass('visible');
+                    }
+                    
+                    if (newIndex === 6){
+                        setTimeout(() => {
+                            rightCircle.addClass('visible');
+                        }, 400);
+                        rightImages.eq(3).addClass('visible');
+                        // if(index === 5){
+                        //     leftImages.eq(1).addClass('has-transition').removeClass('visible');
+                        // }
+                        // leftImages.eq(2).addClass('visible has-transition');
+                    }
+                    
+                    if (newIndex === 7){
+                        rightCircle.removeClass('visible');
+                    }
+                    // else if (index === 4) {
+                    //     if (newIndex === 3) {
+                    //         rightImages.eq(2).removeClass('visible');
+                    //         leftImages.eq(1).removeClass('visible');
+                    //     } else if (newIndex === 5)
+                    //         leftImages.eq(1).addClass('visible');
+                    // } else if (index === 5) {
+                    //     if (newIndex === 6)
+                    //         leftImages.eq(2).addClass('visible has-transition');
+                    // } else if (index === 6) {
+                    //     if (newIndex === 5)
+                    //         leftImages.eq(2).removeClass('visible');
+                    // }
+
+                    // fade incoming text in and vice versa
+                    thisSection.find('.text').removeClass('visible');
+                    setTimeout(() => {
+                        nextSection.find('.text').addClass('visible');
+                    }, 200);
+
+
+                    //switch from left to right circles and vice versa
+                    if (!thisSection.hasClass('inversed') && nextSection.hasClass('inversed')) {
+                        rightCircle.removeClass('visible');
+
+                        setTimeout(() => {
+                            leftCircle.addClass('visible');
+                        }, 200);
+                    } else if (thisSection.hasClass('inversed') && !nextSection.hasClass('inversed')) {
+                        leftCircle.removeClass('visible');
+
+                        setTimeout(() => {
+                            rightCircle.addClass('visible');
+                        }, 200);
+                    }
+
+                    //hide and show circles and scroll pointer
+                    if (direction === 'up') {
+                        sectionScroller.show();
+                        circlesSection.show();
+                        navigation.removeClass('hidden');
+                    } else if (newIndex === $('#fullpage .section').length) {
+                        sectionScroller.hide();
+                        circlesSection.hide();
+                        navigation.addClass('hidden');
+                    }
+                },
+
+                /*
+                Needed to maintain the fixed position of the element
+                due to problems using translate3d and fixed elements.
+                */
+                afterRender: function() {
+                    $('#infoMenu').appendTo('body');
+                    navigation = $('#fp-nav');
+                }
+
+            });
+        });
+
+        function submitOrder(e, form) {
+            e.preventDefault();
+            orderForm.addClass('loading');
+
+            var data = orderForm.serializeArray();
+            var dataObj = {};
+            data.map( item => {
+                dataObj[item.name] = item.value;
+            });
+
+            // var formData = new FormData(form);
+            var xhr = new XMLHttpRequest();
+
+			xhr.onreadystatechange = function(e) {
+				if (xhr.readyState == 4) {
+					console.log(xhr.responseText)
+                    orderForm.removeClass('loading');
+
+                    $("#orderForm input[type='phone']").val("");
+				}
+			};
+
+            xhr.open("POST", "send_mail.php", true);
+            // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			// xhr.setRequestHeader("X-FILENAME", file.name.replace(/ /g, "_"));
+            xhr.send(JSON.stringify(dataObj));
+            
+            // setTimeout(() => {
+            //     orderForm.removeClass('loading');
+            // }, 2000);
+        }
+    </script>
+</head>
+
+<body>
+    <header class="layout vertical center">
+        <nav class="layout center justified">
+            <a href="#" class="layout center-center">Home</a>
+            <a href="#" class="for-lg layout center-center">SomaApp</a>
+            <a id="logo" href="#" class="layout center-center active">
+                <img src="img/somafit/logo.png" alt="Somaapps Technologies" width="50px;" height="50px">
+            </a>
+            <a href="#" class="for-lg layout center-center">Blog</a>
+            <a href="#" class="layout center-center">Contact Us</a>
+        </nav>
+    </header>
+
+    <button id="sectionScroller">
+        <svg fill="#999" width="30" height="30" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
+    </button>
+
+    <div id="circlesSection">
+        <section class="inversed">
+            <div class="section-wrapper">
+                <div class="layout">
+                    <div class="text">&nbsp;</div>
+                    <div class="images layout center-justified">
+                        <div class="circle" id="leftCircle">
+                            <img class="first" src="img/somafit-page/somafiti-app.png" alt="" style="background-color: #fff3ef">
+                            <div id="outFitImages" class="layout">
+                                <img src="img/somafit/withfriends.jpg" alt="">
+                                <img src="img/somafit/aroundtown.jpg" alt="">
+                                <img src="img/somafit/date.jpg" alt="">
+                                <img src="img/somafit/chilling.jpg" alt="">
+                            </div>
+                            <img src="img/somafit/together.jpg" alt="" style="object-position: righ">
+
+                            <div id="cylinderImages">
+                                <div id="frame">
+                                    <div class="strip">
+                                        <div class="blue">
+                                            <div class="layout center-center" color="Barely Blue">
+                                                <img src="img/somafit/watch-blues.png" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="darkblue">
+                                            <div class="layout center-center" color="Brilliant Blue">
+                                                <img src="img/somafit/watch-dark-blues.png" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="purple">
+                                            <div class="layout center-center" color="Pretty Purple">
+                                                <img src="img/somafit/watch-purples.png" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="red">
+                                            <div class="layout center-center" color="Rad Red">
+                                                <img src="img/somafit/watch-blacks.png" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="black">
+                                            <div class="layout center-center" color="Boldly Black">
+                                                <img src="img/somafit/watch-blacks.png" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-wrapper">
+                <div class="layout">
+                    <div class="text">&nbsp;</div>
+                    <div class="images layout center-justified">
+                        <div id="rightCircle" class="circle visible">
+                            <img class="first" src="img/somafit-page/gym.jpg" alt="">
+                            <img src="img/somafit-page/swimmer.jpg" alt="">
+                            <img src="img/somafit/driving.jpg" alt="">
+                            <video id="diverVideo" muted loop src="img/somafit/dive.mp4"></video>
+                            <img style="background: #efe0d6" src="img/somafit-page/somafiti-jogger.png" alt="">
+
+                            <div id="otherOptions" class="layout center-justified wrap">
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/18.png" alt="">
+                                    <span>Digital Watch</span>
+                                </div>
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/13.png" alt="">
+                                    <span>Alarm Clock</span>
+                                </div>
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/14.png" alt="">
+                                    <span>Gps Tracking</span>
+                                </div>
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/15.png" alt="">
+                                    <span>Multi Language</span>
+                                </div>
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/16.png" alt="">
+                                    <span>Shake To Snap</span>
+                                </div>
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/17.png" alt="">
+                                    <span>USB Charging</span>
+                                </div>
+                                <div class="fit-option layout vertical center">
+                                    <img src="img/fit/19.png" alt="">
+                                    <span>Writst-Up Light</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="fullpage">
+        <section id="somafitBanner" class="section">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text visible">
+                        <h1>
+                            Your personal <br> workout buddy
+                            <!-- A workout partner <br> that you can rely on -->
+                        </h1>
+                        <p>
+                            SomaFiti gathers your vitals multiple times <br> every second to make sure you’re performing <br> at your best. Every single step of the way.
+                            <!-- SomaFiti has been desgined to enable you <br> to easily take back full control of your fitness life <br> by giving you information you can act on. -->
+                        </p>
+
+                        <div id="fitOptions" class="layout wrap">
+                            <div class="fit-option">
+                                <img src="img/fit/9.png" alt="">
+                                <span>Steps Taken</span>
+                            </div>
+                            <div class="fit-option"><img src="img/fit/10.png" alt="">
+                                <span>Distance Run</span>
+                            </div>
+                            <div class="fit-option"><img src="img/fit/1.png" alt="">
+                                <span>Calories Burnt</span>
+                            </div>
+                            <div class="fit-option">
+                                <img src="img/fit/4.png" alt="">
+                                <span>Heart rate</span>
+                            </div>
+                            <div class="fit-option">
+                                <img src="img/fit/6.png" alt="">
+                                <span>Blood Pressure</span>
+                            </div>
+                            <div class="fit-option"><img src="img/fit/7.png" alt="">
+                                <span>Wellbeing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="somafitPhones" class="section inversed">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text">
+                        <h1>
+                            <!-- Works well on both <br> Android &amp; IOS phones -->
+                            We leave no one behind
+                        </h1>
+                        <p>
+                            Monitor your daily, weekly, and monthly<span class="for-mob"><br></span>
+                            progress on your iPhone or Android<span class="for-lg"> seamlessly</span>.
+                            <span class="for-mob"><br></span>
+                            Just pair once, and you’re off.
+                            <!-- To help you easily adapt the SomaFiti ecosystem,<br> we have ensured that it's comptabile with both<br> Android and iOS phones. -->
+                        </p>
+
+                        <div class="layout center">
+                            <a target="_blank" href="https://itunes.apple.com/tz/app/somafit/id1373134429?mt=8" title="Download for iphone">
+                                <img height="50px" src="img/somafit/ios-download.png" alt="Download for iphone">
+                            </a>&emsp;&nbsp;
+                            <a target="_blank" href="https://play.google.com/store/apps/details?id=com.zjw.somafit">
+                                <img height="50px" src="img/somafit/android-download.png" alt="Download for android">
+                            </a>
+                        </div>
+                        <!-- <a href="#">
+                            Learn how to connect your somafit 
+                            watch with your smartphone
+                        </a> -->
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="somafitWaterResistant" class="section">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text">
+                        <h1>
+                            Just chill
+                            <!-- It works just as well <br> when under water -->
+                        </h1>
+                        <p>
+                            SomaFiti is water resistant up to 1 meter, <br>which makes it ideal for those moments <br> when you need to cool off. 
+                            <!-- It’s just that cool -->
+                            <!-- A SomaFiti bracelet is also water resistant <br> which means it will still work properly <br> when you decide to take it diving with you. -->
+
+                            <a id="diverPlayLink" href="#">
+                                Video: Diving off the coast of Zanzibar
+                                <!-- Watch a Fahad, a SomaFiti user from Zanzibar 
+                                take his bracelet diving -->
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="somafitNotifications" class="section">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text">
+                        <h1>
+                            <!-- Keep your phone away<br> until you need it. -->
+                            Driving just got <span class="for-sm"><br></span> a whole lot safer
+                        </h1>
+                        <p>
+                            See who’s calling with a flick of your wrist - all your notifications are just a glance away. All so you can focus on what’s important.
+                            <!-- A SomaFiti bracelet provides you with both  <br>
+                            call and message notifications allowing you<br> 
+                            to rest easy knowing that you won't miss out. -->
+                        </p> <br><br>
+
+                        <div id="notificationOptions" class="layout wrap">
+                            <div class="fit-option">
+                                <img src="img/fit/2.png" alt="">
+                                <span>New Texts</span>
+                            </div>
+                            <div class="fit-option">
+                                <img src="img/fit/11.png" alt="">
+                                <span>See Calls</span>
+                            </div>
+                            <div class="fit-option">
+                                <img src="img/fit/12.png" alt="">
+                                <span>Reject a Call</span>
+                            </div>
+                            <div class="fit-option">
+                                <img src="img/fit/5.png" alt="">
+                                <span>Social Alerts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="somafitColors" class="section inversed">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text">
+                        <h1>
+                            A perfect compliment<br> to your perfect outfit.
+                        </h1>
+                        <p>
+                            Available in all your favorite colours, <br> a SomaFiti bracelet can serve as the perfect <br> addition to your already awesome look.
+                        </p>
+
+                        <div id="lookMovers" class="layout wrap">
+                            <!-- <span onclick="moveOutFitImages(this, 0)" class="look-mover active">Out with friends</span>
+                            <span onclick="moveOutFitImages(this, 1)" class="look-mover">Around town</span>
+                            <span onclick="moveOutFitImages(this, 2)" class="look-mover">On the perfect date</span>
+                            <span onclick="moveOutFitImages(this, 3)" class="look-mover">Just chilling</span> -->
+
+                            <span onclick="moveOutFitImages(this, 0)" class="look-mover active">With friends</span>
+                            <span onclick="moveOutFitImages(this, 1)" class="look-mover">Out and About</span><span class="for-mob"><br></span>
+                            <span onclick="moveOutFitImages(this, 2)" class="look-mover">Date Night</span>
+                            <span onclick="moveOutFitImages(this, 3)" class="look-mover">Everywhere</span>
+                        </div>
+
+                        <a href="#" onclick="showColorsOptions()">
+                            See all available bracelet colours
+                        </a>
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- <section id="somafitDownload" class="section inversed" style="display: none;">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text">
+                        <h1>
+                            Let's Somafit together
+                        </h1>
+                        <p>
+                            Get your very own Somafit and then tell a friend, <br> so you can all take back control of your fitness and better manage your personal lives.
+                        </p>
+
+                        <a id="getYourWatchAnchor" href="#">
+                            Get your own somafit bracelet
+                        </a>
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section> -->
+        
+        <section id="somafitMoreFeatures" class="section">
+            <div class="section-wrapper">
+                <div class="layout center">
+                    <div class="text">
+                        <h1>
+                            And so much more
+                        </h1>
+                        <p>
+                            With all that SomaFiti is, there’s something in it for everyone. SomaFiti is more than just a smart bracelet. SomaFiti is a lifestyle.
+                            <!-- Together with the above mentioned features, 
+                            SomaFiti also provides you with alot more features 
+                            to give you a first class experience. -->
+                        </p>
+
+                        <a id="getYourWatchAnchor" href="#">
+                            Get your SomaFiti now
+                        </a>
+                    </div>
+
+                    <div class="images"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="footerWrapper" class="section">
+            <div id="orderWatch" class="section-wrapper layout vertical center-center">
+                <h1>Order a SomaFiti <span class="for-lg">bracelet</span></h1>
+
+                <div id="orderForm">
+                    <div class="layout">
+                        <div class="flex order-item layout vertical center-center">
+                            <img src="img/somafit/watch-blue-bw.png" alt="">
+                            <span>Brilliant Blue</span>
+                            <strong>Tshs. 99,000/-</strong>
+                            <a href="#" onclick="showOrderForm(0)">ORDER NOW</a>
+                        </div>
+
+                        <form action="#" class="for-bw visible" onsubmit="submitOrder(event, this)">
+                            <img id="loader" src="img/loading.gif" alt="">
+    
+                            <span>Display Variant</span>
+                            <div id="typeOptions" class="order-form-section layout center">
+                                <input checked id="blackAndWhite" type="radio" name="screen" value="Black & White"/>
+                                <label onclick="changeCurrentOrderWatch(0)" class="layout center-center" for="blackAndWhite">
+                                    Black & White
+                                </label>
+                                
+                                <input id="colored" type="radio" name="screen" value="Coloured"/>
+                                <label onclick="changeCurrentOrderWatch(1)" class="layout center-center" for="colored">
+                                    Coloured
+                                </label>
+                            </div>
+                            <br><br>
+    
+                            <span>Band Colour</span>
+                            
+                            <div id="colorOptions" class="order-form-section layout center">
+                                <input checked id="colorblue" type="radio" name="color" value="blue"/>
+                                <label class="is-bw layout center-center" for="colorblue"
+                                    onclick="changeCurrentOrderColor(0)"></label>
+                                
+                                <input id="colordarkblue" type="radio" name="color" value="darkblue"/>
+                                <label class="layout center-center" for="colordarkblue"
+                                    onclick="changeCurrentOrderColor(0)"></label>
+
+                                <input id="colorblack" type="radio" name="color" value="black"/>
+                                <label class="is-both layout center-center" for="colorblack"
+                                    onclick="changeCurrentOrderColor(1)"></label>
+                                
+                                <input id="colorpurple" type="radio" name="color" value="purple"/>
+                                <label class="layout center-center" for="colorpurple"
+                                    onclick="changeCurrentOrderColor(2)"></label>
+                                
+                                <input id="colorred" type="radio" name="color" value="red"/>
+                                <label class="is-bw layout center-center" for="colorred"
+                                    onclick="changeCurrentOrderColor(2)"></label>
+                            </div>
+                            <br><br>
+                            
+                            <span>Quantity</span>
+                            
+                            <div id="quantityOptions" class="order-form-section layout center">
+                                <input checked id="quantity1" type="radio" name="quantity" value="1"/>
+                                <label class="layout center-center" for="quantity1">1</label>
+                                
+                                <input id="quantity2" type="radio" name="quantity" value="2"/>
+                                <label class="layout center-center" for="quantity2">2</label>
+                                
+                                <input id="quantity3" type="radio" name="quantity" value="3"/>
+                                <label class="layout center-center" for="quantity3">3</label>
+                                
+                                <input id="quantity4" type="radio" name="quantity" value="4"/>
+                                <label class="layout center-center" for="quantity4">4</label>
+                                
+                                <input id="quantity5" type="radio" name="quantity" value="5"/>
+                                <label class="layout center-center" for="quantity5">5</label>
+                                
+                                <input id="quantityMore" type="radio" name="quantity" value="more than 5"/>
+                                <label class="layout center-center" for="quantityMore">More</label>
+                            </div>
+                            <br><br>
+
+                            <div class="order-form-section">
+                                <span>Phone Number</span>
+                                <input type="phone" name="phone_number" required placeholder="E.g. 0712 34 56 78">
+                            </div>
+                            <br>
+    
+                            <!-- <span>Email</span>
+                            <input type="email" required placeholder="E.g. chausiku@gmail.com">
+    
+                            <br> -->
+                            <button type="submit">PLACE ORDER</button>
+                        </form>
+                        
+                        <div class="flex order-item hidden layout vertical center-center">
+                            <img src="img/somafit/watch-dark-blue.png" alt="">
+                            <span>Barely Blue</span>
+                            <strong>Tshs. 99,000/-</strong>
+                            <a href="#" onclick="showOrderForm(3)">ORDER NOW</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <footer>
+                <div id="ceoQuote" class="section-wrapper layout vertical center-center ">
+                    <q>
+                        In the modern technology-driven world, the power lies not simply in the
+                        acquisition of education, but in harnessing it to create solutions and opprotunities.
+                    </q>
+                    <small class="text-accent">
+                        Isaiah Zachariah, &nbsp;&nbsp;CTO Somaapps Technologies
+                    </small>
+                </div>
+
+                <div class="section-wrapper" style="max-width: 1300px !important;">
+                    <div id="copyright" class="section-wrapper layout start justified">
+                        <div class="layout center">
+                            <img src="img/logo-wide.png" height="50px" alt="Somaapps wide logo"> &nbsp;&emsp;
+                            <hr><span class="for-lg">&emsp;&nbsp;</span>
+                            <span><span class="for-lg">Copyright </span>&copy; 2018 Somaapps Technologies</span>
+                        </div>
+
+                        <div id="footerLocation" class="layout">
+                            <svg fill="#555" width="60" height="60" viewBox="0 0 24 24">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                            </svg> &emsp;
+
+                            <div>
+                                Somaapps HQ Dar Es Salaam, Tanzania <br>
+                                <a id="footerA" target="_blank" href="https://www.google.com/maps/place/SomaApp+HQ/@-6.7807388,39.218371,15z/data=!4m5!3m4!1s0x0:0xb0dada27a1439432!8m2!3d-6.7807388!4d39.218371">
+                                    View on Google Maps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+</body>
+
+</html>
